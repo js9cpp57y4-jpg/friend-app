@@ -1,22 +1,27 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
 const navItems = [
-  ['首页', '/home'], ['匹配', '/match'], ['聊天', '/chat'], ['活动', '/events'], ['我的', '/profile'], ['安全中心', '/safety']
+  { name: '首页', path: '/home', icon: '🏠' },
+  { name: '匹配', path: '/match', icon: '💜' },
+  { name: '聊天', path: '/chat', icon: '💬' },
+  { name: '活动', path: '/events', icon: '📅' },
+  { name: '我的', path: '/profile', icon: '👤' }
 ];
 
 export function AppLayout() {
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <h2>华电交友</h2>
-        <p>真实 · 同频 · 安全</p>
-        {navItems.map(([name, path]) => (
-          <NavLink key={path} to={path} className={({ isActive }) => (isActive ? 'nav active' : 'nav')}>
-            {name}
-          </NavLink>
-        ))}
-      </aside>
-      <main className="content"><Outlet /></main>
+    <div className="mobile-stage">
+      <div className="phone-shell">
+        <main className="phone-content"><Outlet /></main>
+        <div className="safety-link-wrap"><NavLink to="/safety" className="safety-link">安全中心</NavLink></div>
+        <nav className="bottom-tab">
+          {navItems.map((item) => (
+            <NavLink key={item.path} to={item.path} className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+              <span>{item.icon}</span><span>{item.name}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
     </div>
   );
 }
