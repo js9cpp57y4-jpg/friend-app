@@ -6,7 +6,7 @@ export function HomePage() {
       <header className="feed-header"><h1>华电交友</h1><div>💌 🔔</div></header>
       <h3>Stories</h3>
       <div className="stories-row">{stories.map((s) => <div key={s} className="story-ring">{s}</div>)}</div>
-      <h3>Feed</h3>
+      <h3>Feed · 校园动态</h3>
       {feed.map((post) => (
         <article className="feed-card" key={post.id}>
           <p><b>{post.name}</b> · {post.college}</p>
