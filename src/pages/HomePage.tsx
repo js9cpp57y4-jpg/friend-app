@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { feed, recommendedUsers, stories } from '../mock/data';
+import { brand, feed, recommendedUsers, stories } from '../mock/data';
 
 export function HomePage() {
   const nav = useNavigate();
   return (
     <section>
       <header className="feed-header">
-        <h1><span className="brand-mark"><span className="brand-dot" />华电交友</span></h1>
+        <h1><span className="wordmark">{brand.name}</span></h1>
         <div className="header-icons"><button className="icon-btn">✉</button><button className="icon-btn">⌕</button></div>
       </header>
+      <p className="page-subtitle">{brand.cnTagline}</p>
 
       <div className="section-title"><h3>校园圈子</h3><span>发现同频</span></div>
       <div className="stories-row">
@@ -22,7 +23,7 @@ export function HomePage() {
         {recommendedUsers.map((u) => (
           <div className="recommend-row" key={u.id}>
             <div className="avatar">{u.initials}</div>
-            <div><b>{u.name}</b><p>{u.meta}</p><p>{u.reason}</p></div>
+            <div><b>{u.nickname}</b><p>{u.meta}</p><p>{u.reason}</p></div>
             <span className="score-pill">{u.score}</span>
           </div>
         ))}
@@ -32,7 +33,7 @@ export function HomePage() {
       <div className="section-title"><h3>校园动态</h3><span>Feed</span></div>
       {feed.map((post) => (
         <article className="feed-card" key={post.id}>
-          <div className="feed-user"><div className="avatar">{post.initials}</div><div><b>{post.name}</b><p>{post.dept} · {post.time}</p></div></div>
+          <div className="feed-user"><div className="avatar">{post.initials}</div><div><b>{post.nickname}</b><p>{post.dept} · {post.time}</p></div></div>
           <div className="feed-visual"><div className="cover-title">{post.coverTitle}</div><div className="cover-subtitle">{post.coverSubtitle}</div></div>
           <p className="feed-caption">{post.text}</p>
           <div className="tags">{post.tags.map((t) => <span key={t}>{t}</span>)}</div>
