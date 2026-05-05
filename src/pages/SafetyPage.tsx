@@ -1,1 +1,1 @@
-export function SafetyPage(){return <section><h1>安全中心</h1><div className='card'><p>校园认证：已认证（Mock）</p><p>隐私设置：仅同校可见</p><p>线下见面建议：公共场所、提前报备、夜间谨慎。</p><button>举报记录</button><button>拉黑名单</button></div></section>}
+export function SafetyPage(){return <section><h1>安全中心</h1><article className='feed-card'><p>校园认证、隐私范围、举报拉黑、线下见面提醒、信用分规则</p></article></section>}
