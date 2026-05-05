@@ -13,6 +13,7 @@ export function AppLayout() {
     <div className="mobile-stage">
       <div className="phone-shell">
         <main className="phone-content"><Outlet /></main>
+        <div className="safety-link-wrap"><NavLink to="/safety" className="safety-link">安全中心</NavLink></div>
         <nav className="bottom-tab">
           {navItems.map((item) => (
             <NavLink key={item.path} to={item.path} className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
