@@ -1,1 +1,20 @@
-export function EventsPage(){return <section><h1>活动</h1><article className='feed-card'><h3>图书馆自习局</h3><p>今天19:00 · 主图B区</p><button>报名</button></article><article className='feed-card'><h3>羽毛球局</h3><p>周三20:00 · 体育馆</p><button>报名</button></article></section>}
+import { events } from '../mock/data';
+
+export function EventsPage() {
+  return (
+    <section>
+      <header className="feed-header"><h1>活动广场</h1><small>轻线下破冰</small></header>
+      <div className="event-grid">
+        {events.map((event) => (
+          <article className="feed-card" key={event.id}>
+            <div className="feed-visual">{event.visual}</div>
+            <h3>{event.title}</h3>
+            <p>{event.time} · {event.place}</p>
+            <div className="tags"><span>{event.tag}</span><span>{event.people}</span></div>
+            <button className="cta">报名</button>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
