@@ -1,34 +1,89 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { brand, interestSubtags, onboardingInterestGroups } from '../mock/data';
+import { brand, interestSubtags, onboardingInterestGroups, photoVisibilityOptions } from '../mock/data';
+import '../styles/onboarding.css';
+
+const steps = ['学校认证', '账号资料', '兴趣偏好', '照片隐私', '个性问答'];
+const intents = ['认真了解', '长期朋友', '学习搭子', '活动玩伴'];
+const promptOptions = [
+  '我的理想周末是',
+  '最能代表我的三个关键词',
+  '最近最想完成的一件事',
+  '我希望认识这样的人',
+  '一句话说明我的相处方式'
+];
 
 export function AuthPage(){
   const nav=useNavigate();
-  const [selected,setSelected]=useState<string[]>(['图书馆自习','羽毛球','音乐:R&B']);
+  const [step,setStep]=useState(0);
+  const [email,setEmail]=useState('2026xxxx@ncepu.edu.cn');
+  const [nickname,setNickname]=useState('林间风');
+  const [password,setPassword]=useState('');
+  const [intent,setIntent]=useState('长期朋友');
+  const [selected,setSelected]=useState<string[]>(['图书馆自习','羽毛球','音乐:R&B','电影:悬疑','周末咖啡']);
   const [activeGroup,setActiveGroup]=useState(onboardingInterestGroups[0].title);
   const [expanded,setExpanded]=useState<string>('音乐');
-  const toggle=(tag:string)=>setSelected((prev)=>prev.includes(tag)?prev.filter((item)=>item!==tag):[...prev,tag]);
+  const [photoMode,setPhotoMode]=useState(photoVisibilityOptions[1].title);
+  const [prompts,setPrompts]=useState([
+    { q:'我的理想周末是', a:'上午图书馆，下午运动或咖啡，晚上轻松散步。' },
+    { q:'我希望认识这样的人', a:'真诚、有边界感、愿意稳定沟通的人。' }
+  ]);
+
   const currentGroup=onboardingInterestGroups.find((group)=>group.title===activeGroup) ?? onboardingInterestGroups[0];
+  const detailCount=selected.filter((tag)=>tag.includes(':')).length;
+  const toggle=(tag:string)=>setSelected((prev)=>prev.includes(tag)?prev.filter((item)=>item!==tag):[...prev,tag]);
+  const toggleBaseTag=(tag:string)=>{ toggle(tag); if(interestSubtags[tag]) setExpanded(expanded===tag?'':tag); };
+  const progress=((step+1)/steps.length)*100;
 
-  const toggleBaseTag=(tag:string)=>{
-    toggle(tag);
-    if(interestSubtags[tag]) setExpanded(expanded===tag?'':tag);
+  const canNext =
+    step===0 ? email.includes('@') :
+    step===1 ? nickname.trim().length>=2 && password.length>=0 :
+    step===2 ? selected.length>=5 && detailCount>=2 :
+    step===3 ? Boolean(photoMode) :
+    prompts.filter((p)=>p.a.trim()).length>=2;
+
+  const next=()=>{
+    if(!canNext) return;
+    if(step<steps.length-1) setStep(step+1);
+    else nav('/home');
   };
-
-  const selectedCount=selected.length;
 
   return (
     <div className='mobile-stage'>
       <div className='phone-shell'>
-        <main className='phone-content'>
-          <article className='auth-card'>
+        <main className='phone-content onboarding-screen'>
+          <header className='onboarding-top'>
             <h1 className='wordmark'>{brand.name}</h1>
             <p>{brand.cnTagline}</p>
-            <input placeholder='校园邮箱 / 学号认证入口'/>
-            <input placeholder='设置昵称，不展示真名'/>
-            <input placeholder='密码' type='password'/>
-            <div className='section-title'><h3>选择兴趣标签</h3><span>{selectedCount} 已选</span></div>
-            <p className='hint-text'>先选大类，再点开具体兴趣继续细分。比如“音乐”可继续选择 R&B、嘻哈、摇滚、民谣等，用于更精准的同频匹配。</p>
+            <div className='step-progress'><span style={{width:`${progress}%`}} /></div>
+            <div className='step-dots'>{steps.map((s,i)=><button key={s} className={i===step?'dot-step active':'dot-step'} onClick={()=>setStep(i)}>{i+1}</button>)}</div>
+          </header>
+
+          {step===0 && <section className='onboarding-card hero-step'>
+            <span className='step-kicker'>Step 1 / 5</span>
+            <h2>学校认证</h2>
+            <p>只用于确认你是华电学生。推荐、动态和匹配页默认只展示昵称与校园认证，不展示学号、真名和具体学院年级。</p>
+            <label>校园邮箱 / 学号认证入口</label>
+            <input value={email} onChange={(e)=>setEmail(e.target.value)} placeholder='例如 2026xxxx@ncepu.edu.cn'/>
+            <div className='privacy-note'>前台匿名展示，后台实名认证；互相感兴趣后再逐步交换私密信息。</div>
+          </section>}
+
+          {step===1 && <section className='onboarding-card'>
+            <span className='step-kicker'>Step 2 / 5</span>
+            <h2>账号资料</h2>
+            <p>参考成熟交友平台的建档方式，先用轻量资料表达关系期待，避免一开始暴露过多隐私。</p>
+            <label>昵称</label>
+            <input value={nickname} onChange={(e)=>setNickname(e.target.value)} placeholder='设置昵称，不展示真名'/>
+            <label>密码</label>
+            <input value={password} onChange={(e)=>setPassword(e.target.value)} placeholder='设置密码' type='password'/>
+            <label>关系意图</label>
+            <div className='option-grid'>{intents.map((item)=><button key={item} className={intent===item?'option-card active':'option-card'} onClick={()=>setIntent(item)}>{item}</button>)}</div>
+          </section>}
+
+          {step===2 && <section className='onboarding-card interest-step'>
+            <span className='step-kicker'>Step 3 / 5</span>
+            <div className='section-title'><h2>兴趣偏好</h2><span>{selected.length} 已选</span></div>
+            <p>至少选择 5 个兴趣，其中至少 2 个细分偏好。比如“音乐 → R&B / 嘻哈 / 摇滚”，比只选“音乐”更能提高同频推荐质量。</p>
 
             <div className='interest-tabs'>
               {onboardingInterestGroups.map((group)=>(
@@ -65,13 +120,35 @@ export function AuthPage(){
             </div>
 
             <div className='selected-summary'>
-              <b>已选标签</b>
-              <div className='interest-grid'>
-                {selected.map((tag)=><button key={tag} className='interest-chip active' onClick={()=>toggle(tag)}>{tag.replace(':',' · ')}</button>)}
-              </div>
+              <b>已选标签 · {detailCount} 个细分偏好</b>
+              <div className='interest-grid'>{selected.map((tag)=><button key={tag} className='interest-chip active' onClick={()=>toggle(tag)}>{tag.replace(':',' · ')}</button>)}</div>
             </div>
-            <button className='cta' onClick={()=>nav('/home')}>进入 NCEPU Link</button>
-          </article>
+          </section>}
+
+          {step===3 && <section className='onboarding-card'>
+            <span className='step-kicker'>Step 4 / 5</span>
+            <h2>照片隐私</h2>
+            <p>考虑校内熟人环境，NCEPU Link 使用双轨匹配：公开照片用户优先匹配公开照片用户；隐私用户通过兴趣与授权机制匹配。</p>
+            <div className='privacy-option-list'>
+              {photoVisibilityOptions.map((option)=><button key={option.id} className={photoMode===option.title?'privacy-option active':'privacy-option'} onClick={()=>setPhotoMode(option.title)}><b>{option.title}</b><span>{option.desc}</span></button>)}
+            </div>
+          </section>}
+
+          {step===4 && <section className='onboarding-card'>
+            <span className='step-kicker'>Step 5 / 5</span>
+            <h2>个性问答</h2>
+            <p>用 2-3 个回答替代尴尬的空白资料，让别人更容易发起有效聊天。</p>
+            {prompts.map((item,idx)=><div className='prompt-card' key={idx}>
+              <select value={item.q} onChange={(e)=>setPrompts((prev)=>prev.map((p,i)=>i===idx?{...p,q:e.target.value}:p))}>{promptOptions.map((q)=><option key={q}>{q}</option>)}</select>
+              <textarea value={item.a} onChange={(e)=>setPrompts((prev)=>prev.map((p,i)=>i===idx?{...p,a:e.target.value}:p))} placeholder='写一句真实、有辨识度的回答'/>
+            </div>)}
+            <button className='outline-btn' onClick={()=>setPrompts((prev)=>prev.length>=3?prev:[...prev,{q:promptOptions[prev.length],a:''}])}>添加一个问答</button>
+          </section>}
+
+          <footer className='onboarding-actions'>
+            <button className='outline-btn' disabled={step===0} onClick={()=>setStep((s)=>Math.max(0,s-1))}>上一步</button>
+            <button className='cta' disabled={!canNext} onClick={next}>{step===steps.length-1?'开始使用':'下一步'}</button>
+          </footer>
         </main>
       </div>
     </div>
