@@ -1,0 +1,15 @@
+:root{font-family:Inter,'PingFang SC',sans-serif;color:#1e2238}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eef1ff,#f8f8fc)}
+.mobile-stage{min-height:100vh;display:grid;place-items:center;padding:16px}
+.phone-shell{width:min(390px,100vw);height:min(780px,100vh);background:#fff;border-radius:34px;border:10px solid #111;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(44,54,103,.24)}
+.phone-content{flex:1;overflow:auto;padding:14px 14px 86px}
+.bottom-tab{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-top:1px solid #eceffd}
+.tab-item{text-decoration:none;color:#7980a7;font-size:12px;display:grid;justify-items:center;padding:10px 2px}.tab-item.active{color:#7f51ff;font-weight:700}
+.feed-header h1{margin:0;background:linear-gradient(120deg,#4f73ff,#b05cff,#ff5ba5);-webkit-background-clip:text;color:transparent}
+.stories-row{display:flex;gap:8px;overflow:auto;margin-bottom:8px}.story-ring{padding:8px 12px;border-radius:999px;color:#fff;background:linear-gradient(120deg,#6d7bff,#cb5fff)}
+.feed-card,.swipe-card{background:#fff;border-radius:16px;padding:12px;box-shadow:0 10px 24px rgba(36,47,90,.1);margin:10px 0}
+.feed-visual,.swipe-photo{height:160px;border-radius:12px;display:grid;place-items:center;font-size:40px;background:linear-gradient(145deg,#dce6ff,#ffdced)}
+.tags{display:flex;gap:8px;flex-wrap:wrap}.tags span{background:#f2f4ff;border-radius:999px;padding:4px 10px;font-size:12px}
+.swipe-card{transition:all .22s ease}.swipe-card.left{transform:translateX(-28px) rotate(-2deg);opacity:.2}.swipe-card.right{transform:translateX(28px) rotate(2deg);opacity:.2}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.actions button{border:none;border-radius:12px;padding:11px}.actions button:last-child{background:linear-gradient(120deg,#5670ff,#c05eff,#ff60a8);color:#fff}
+.match-toast{position:fixed;top:20%;left:50%;transform:translateX(-50%);background:#1f2743;color:#fff;padding:10px 14px;border-radius:12px}
+@media (max-width:480px){.mobile-stage{padding:0}.phone-shell{width:100vw;height:100vh;border:none;border-radius:0}}
