@@ -30,10 +30,11 @@ export function HomePage() {
         <button className="cta" onClick={() => nav('/match')}>查看推荐</button>
       </article>
 
+      <div className="privacy-note">动态页默认隐藏学院、年级等敏感信息；互相感兴趣后可逐步交换。</div>
       <div className="section-title"><h3>校园动态</h3><span>Feed</span></div>
       {feed.map((post) => (
         <article className="feed-card" key={post.id}>
-          <div className="feed-user"><div className="avatar">{post.initials}</div><div><b>{post.nickname}</b><p>{post.dept} · {post.time}</p></div></div>
+          <div className="feed-user"><div className="avatar">{post.initials}</div><div><b>{post.nickname}</b><p>{post.meta}</p></div></div>
           <div className="feed-visual"><div className="cover-title">{post.coverTitle}</div><div className="cover-subtitle">{post.coverSubtitle}</div></div>
           <p className="feed-caption">{post.text}</p>
           <div className="tags">{post.tags.map((t) => <span key={t}>{t}</span>)}</div>
