@@ -28,10 +28,13 @@ export function MatchPage() {
           <div className="swipe-photo">
             <span className="swipe-hint">左滑跳过 · 右滑感兴趣</span>
             <div className="overlay">
+              <div className="photo-strip">{card.photos.map((p)=><span key={p}>{p}</span>)}</div>
               <div className="cover-subtitle">{card.coverSubtitle}</div>
-              <h3>{card.name}</h3>
+              <h3>{card.nickname}</h3>
               <p>{card.ageGrade} · {card.college}</p>
               <p>{card.intent} · MatchScore {card.score}</p>
+              <p>{card.distance} · {card.activeTime}</p>
+              <blockquote>{card.quote}</blockquote>
               <div className="tags">{card.tags.map((t) => <span key={t}>{t}</span>)}</div>
               <ul>{card.reasons.map((r) => <li key={r}>{r}</li>)}</ul>
             </div>
