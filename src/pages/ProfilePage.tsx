@@ -5,12 +5,12 @@ export function ProfilePage() {
   return (
     <section>
       <div className="profile-head">
-        <div className="avatar large">{profile.name[0]}</div>
-        <h2>{profile.name}</h2>
+        <div className="avatar large">{profile.initials}</div>
+        <h2>{profile.nickname}</h2>
         <p>{profile.college} · {profile.grade}</p>
         <span className="verify-tag">校园认证：{profile.verify}</span>
       </div>
-      <article className="feed-card">
+      <article className="profile-card">
         <p><b>关系意图：</b>{profile.intent}</p>
         <p><b>信用分：</b>{profile.credit}</p>
         <p><b>资料完整度：</b>{profile.completion}%</p>
