@@ -1,11 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
 const tabs = [
-  { path: '/home', label: '首页', icon: '🏠' },
-  { path: '/match', label: '匹配', icon: '💜' },
-  { path: '/chat', label: '聊天', icon: '💬' },
-  { path: '/events', label: '活动', icon: '📅' },
-  { path: '/profile', label: '我的', icon: '👤' }
+  { path: '/home', label: '首页', icon: '⌂' },
+  { path: '/match', label: '匹配', icon: '♡' },
+  { path: '/chat', label: '聊天', icon: '✉' },
+  { path: '/events', label: '活动', icon: '◷' },
+  { path: '/profile', label: '我的', icon: '○' }
 ];
 
 export function AppLayout() {
