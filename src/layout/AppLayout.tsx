@@ -1,11 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
-const navItems = [
-  { name: '首页', path: '/home', icon: '🏠' },
-  { name: '匹配', path: '/match', icon: '💜' },
-  { name: '聊天', path: '/chat', icon: '💬' },
-  { name: '活动', path: '/events', icon: '📅' },
-  { name: '我的', path: '/profile', icon: '👤' }
+const tabs = [
+  { path: '/home', label: '首页', icon: '🏠' },
+  { path: '/match', label: '匹配', icon: '💜' },
+  { path: '/chat', label: '聊天', icon: '💬' },
+  { path: '/events', label: '活动', icon: '📅' },
+  { path: '/profile', label: '我的', icon: '👤' }
 ];
 
 export function AppLayout() {
@@ -13,11 +13,11 @@ export function AppLayout() {
     <div className="mobile-stage">
       <div className="phone-shell">
         <main className="phone-content"><Outlet /></main>
-        <div className="safety-link-wrap"><NavLink to="/safety" className="safety-link">安全中心</NavLink></div>
         <nav className="bottom-tab">
-          {navItems.map((item) => (
-            <NavLink key={item.path} to={item.path} className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
-              <span>{item.icon}</span><span>{item.name}</span>
+          {tabs.map((tab) => (
+            <NavLink key={tab.path} to={tab.path} className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
+              <span className="tab-icon">{tab.icon}</span>
+              <span>{tab.label}</span>
             </NavLink>
           ))}
         </nav>
