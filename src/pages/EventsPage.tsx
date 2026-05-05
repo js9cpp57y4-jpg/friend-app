@@ -1,2 +1,1 @@
-import { events } from '../mock/data';
-export function EventsPage(){return <section><h1>活动广场</h1><div className='grid'>{events.map(e=><article key={e.id} className='card'><h3>{e.title}</h3><p>{e.category} · {e.location}</p><p>{e.joined}/{e.cap}</p><button className='primary'>报名（Mock）</button></article>)}</div></section>}
+export function EventsPage(){return <section><h1>活动</h1><article className='feed-card'><h3>图书馆自习局</h3><p>今天19:00 · 主图B区</p><button>报名</button></article><article className='feed-card'><h3>羽毛球局</h3><p>周三20:00 · 体育馆</p><button>报名</button></article></section>}
