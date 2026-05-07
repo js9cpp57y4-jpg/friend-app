@@ -4,6 +4,7 @@ import { brand, events, feed, recommendedUsers, stories } from '../mock/data';
 import '../styles/social.css';
 
 type FeedAction = 'like' | 'comment' | 'save';
+type HomeMode = 'feed' | 'activity';
 
 type FeedStats = Record<string, { likes: number; comments: number; saves: number; clicks: number; liked: boolean; saved: boolean }>;
 
@@ -12,8 +13,8 @@ const scoreOf = (item: { likes: number; comments: number; saves: number; clicks:
 
 export function HomePage() {
   const nav = useNavigate();
+  const [homeMode, setHomeMode] = useState<HomeMode>('feed');
   const [sortMode, setSortMode] = useState<'recommend' | 'latest'>('recommend');
-  const [showCreate, setShowCreate] = useState(false);
   const [joined, setJoined] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState<FeedStats>(() => Object.fromEntries(feed.map((post) => [post.id, { likes: post.likes, comments: post.comments, saves: post.saves, clicks: 0, liked: false, saved: false }])));
 
@@ -69,45 +70,47 @@ export function HomePage() {
         <button className="cta" onClick={() => nav('/match')}>查看推荐</button>
       </article>
 
-      <button className="creator-entry" onClick={() => setShowCreate((v) => !v)}><span>＋</span><b>发布校园动态 / 发起活动</b></button>
-      {showCreate && <article className="create-panel">
-        <button><b>发布动态</b><span>分享自习、运动、生活片段</span></button>
-        <button><b>发起活动</b><span>创建自习局、球局、桌游局等</span></button>
-      </article>}
+      <div className="home-segment">
+        <button className={homeMode === 'feed' ? 'active' : ''} onClick={() => setHomeMode('feed')}>校园动态</button>
+        <button className={homeMode === 'activity' ? 'active' : ''} onClick={() => setHomeMode('activity')}>活动报名</button>
+      </div>
 
       <div className="privacy-note">动态页默认隐藏学院、年级等敏感信息；互相感兴趣后可逐步交换。</div>
-      <div className="section-title feed-title-row">
-        <div><h3>校园动态</h3><span>基于点击、点赞、评论、收藏进行推荐排序</span></div>
-        <div className="feed-filter">
-          <button className={sortMode === 'recommend' ? 'active' : ''} onClick={() => setSortMode('recommend')}>推荐</button>
-          <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>最新</button>
-        </div>
-      </div>
-      {rankedFeed.map((post, index) => {
-        const item = stats[post.id];
-        const score = Math.round(scoreOf(item));
-        return (
-          <article className="feed-card" key={post.id} onClick={() => setStats((prev) => ({ ...prev, [post.id]: { ...prev[post.id], clicks: prev[post.id].clicks + 1 } }))}>
-            <div className="feed-user"><div className="avatar">{post.initials}</div><div><b>{post.nickname}</b><p>{post.meta}</p></div><span className="rank-badge">#{index + 1} · {score}</span></div>
-            <div className="feed-visual"><div className="cover-title">{post.coverTitle}</div><div className="cover-subtitle">{post.coverSubtitle}</div></div>
-            <p className="feed-caption">{post.text}</p>
-            <div className="tags">{post.tags.map((t) => <span key={t}>{t}</span>)}</div>
-            <div className="feed-actions">
-              <button className={item.liked ? 'active' : ''} onClick={(e) => { e.stopPropagation(); updateAction(post.id, 'like'); }}>♡ {item.likes}</button>
-              <button onClick={(e) => { e.stopPropagation(); updateAction(post.id, 'comment'); }}>💬 {item.comments}</button>
-              <button className={item.saved ? 'active' : ''} onClick={(e) => { e.stopPropagation(); updateAction(post.id, 'save'); }}>⌑ {item.saves}</button>
-            </div>
-          </article>
-        );
-      })}
 
-      <div className="section-title"><h3>活动报名</h3><span>并入校园动态流</span></div>
-      {events.slice(0, 4).map((event) => <article className="feed-card activity-feed" key={event.id}>
-        <div className="event-cover"><div className="cover-title">{event.coverTitle}</div><div className="cover-subtitle">{event.time} · {event.place}</div></div>
-        <h3>{event.title}</h3>
-        <p>{event.people} · {event.tag}</p>
-        <button className={joined[event.id] ? 'outline-btn joined' : 'cta'} onClick={() => setJoined((prev) => ({ ...prev, [event.id]: !prev[event.id] }))}>{joined[event.id] ? '已报名' : '报名参加'}</button>
-      </article>)}
+      {homeMode === 'feed' ? <>
+        <div className="section-title feed-title-row">
+          <div><h3>校园动态</h3><span>基于点击、点赞、评论、收藏进行推荐排序</span></div>
+          <div className="feed-filter">
+            <button className={sortMode === 'recommend' ? 'active' : ''} onClick={() => setSortMode('recommend')}>推荐</button>
+            <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>最新</button>
+          </div>
+        </div>
+        {rankedFeed.map((post, index) => {
+          const item = stats[post.id];
+          const score = Math.round(scoreOf(item));
+          return (
+            <article className="feed-card" key={post.id} onClick={() => setStats((prev) => ({ ...prev, [post.id]: { ...prev[post.id], clicks: prev[post.id].clicks + 1 } }))}>
+              <div className="feed-user"><div className="avatar">{post.initials}</div><div><b>{post.nickname}</b><p>{post.meta}</p></div><span className="rank-badge">#{index + 1} · {score}</span></div>
+              <div className="feed-visual"><div className="cover-title">{post.coverTitle}</div><div className="cover-subtitle">{post.coverSubtitle}</div></div>
+              <p className="feed-caption">{post.text}</p>
+              <div className="tags">{post.tags.map((t) => <span key={t}>{t}</span>)}</div>
+              <div className="feed-actions">
+                <button className={item.liked ? 'active' : ''} onClick={(e) => { e.stopPropagation(); updateAction(post.id, 'like'); }}>♡ {item.likes}</button>
+                <button onClick={(e) => { e.stopPropagation(); updateAction(post.id, 'comment'); }}>💬 {item.comments}</button>
+                <button className={item.saved ? 'active' : ''} onClick={(e) => { e.stopPropagation(); updateAction(post.id, 'save'); }}>⌑ {item.saves}</button>
+              </div>
+            </article>
+          );
+        })}
+      </> : <>
+        <div className="section-title"><h3>活动报名</h3><span>自习局、球局、桌游局</span></div>
+        {events.slice(0, 6).map((event) => <article className="feed-card activity-feed" key={event.id}>
+          <div className="event-cover"><div className="cover-title">{event.coverTitle}</div><div className="cover-subtitle">{event.time} · {event.place}</div></div>
+          <h3>{event.title}</h3>
+          <p>{event.people} · {event.tag}</p>
+          <button className={joined[event.id] ? 'outline-btn joined' : 'cta'} onClick={() => setJoined((prev) => ({ ...prev, [event.id]: !prev[event.id] }))}>{joined[event.id] ? '已报名' : '报名参加'}</button>
+        </article>)}
+      </>}
     </section>
   );
 }
