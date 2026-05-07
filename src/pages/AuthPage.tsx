@@ -41,7 +41,7 @@ export function AuthPage(){
 
   const canNext =
     step===0 ? (loginType==='wechat' || (phone.trim().length>=11 && code.trim().length>=4)) :
-    step===1 ? cardUploaded :
+    step===1 ? true :
     step===2 ? nickname.trim().length>=2 && password.length>=0 :
     step===3 ? selected.length>=5 && detailCount>=2 :
     step===4 ? Boolean(photoMode) && photos.length>=1 :
@@ -100,7 +100,7 @@ export function AuthPage(){
               <span>人工审核</span><i />
               <span>获得校园认证标识</span>
             </div>
-            <div className='privacy-note'>审核通过后前台显示“校园认证”，不直接公开你的真实身份；互相感兴趣后再逐步交换私密信息。</div>
+            <div className='privacy-note'>原型阶段可直接进入下一步；真实上线时，这里会等待人工审核后再点亮校园认证标识。</div>
           </section>}
 
           {step===2 && <section className='onboarding-card'>
