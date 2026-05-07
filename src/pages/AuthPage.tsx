@@ -21,7 +21,6 @@ export function AuthPage(){
   const [code,setCode]=useState('2468');
   const [cardUploaded,setCardUploaded]=useState(false);
   const [nickname,setNickname]=useState('林间风');
-  const [password,setPassword]=useState('');
   const [intent,setIntent]=useState('长期朋友');
   const [selected,setSelected]=useState<string[]>(['图书馆自习','羽毛球','音乐:R&B','电影:悬疑','周末咖啡']);
   const [activeGroup,setActiveGroup]=useState(onboardingInterestGroups[0].title);
@@ -42,7 +41,7 @@ export function AuthPage(){
   const canNext =
     step===0 ? (loginType==='wechat' || (phone.trim().length>=11 && code.trim().length>=4)) :
     step===1 ? cardUploaded :
-    step===2 ? nickname.trim().length>=2 && password.length>=0 :
+    step===2 ? nickname.trim().length>=2 :
     step===3 ? selected.length>=5 && detailCount>=2 :
     step===4 ? Boolean(photoMode) && photos.length>=1 :
     prompts.filter((p)=>p.a.trim()).length>=2;
@@ -66,7 +65,7 @@ export function AuthPage(){
           {step===0 && <section className='onboarding-card hero-step'>
             <span className='step-kicker'>开始使用</span>
             <h2>登录 / 注册</h2>
-            <p>先完成账号登录，再进行校园认证与资料建档。初期可以用手机号验证码或微信登录入口。</p>
+            <p>先完成账号登录，再进行校园认证与资料建档。初期建议优先使用手机号验证码，后续再接入微信登录。</p>
             <div className='login-switch'>
               <button className={loginType==='phone'?'active':''} onClick={()=>setLoginType('phone')}>手机号验证码</button>
               <button className={loginType==='wechat'?'active':''} onClick={()=>setLoginType('wechat')}>微信登录</button>
@@ -106,11 +105,9 @@ export function AuthPage(){
           {step===2 && <section className='onboarding-card'>
             <span className='step-kicker'>账号资料</span>
             <h2>账号资料</h2>
-            <p>参考成熟交友平台的建档方式，先用轻量资料表达关系期待，避免一开始暴露过多隐私。</p>
+            <p>手机号或微信已经承担登录身份，这里只需要设置前台展示昵称和关系意图。</p>
             <label>昵称</label>
             <input value={nickname} onChange={(e)=>setNickname(e.target.value)} placeholder='设置昵称，不展示真名'/>
-            <label>密码</label>
-            <input value={password} onChange={(e)=>setPassword(e.target.value)} placeholder='设置密码' type='password'/>
             <label>关系意图</label>
             <div className='option-grid'>{intents.map((item)=><button key={item} className={intent===item?'option-card active':'option-card'} onClick={()=>setIntent(item)}>{item}</button>)}</div>
           </section>}
