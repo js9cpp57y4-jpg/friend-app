@@ -3,7 +3,6 @@ import { NavLink, Outlet } from 'react-router-dom';
 const tabs = [
   { path: '/home', label: '首页', icon: '⌂' },
   { path: '/match', label: '匹配', icon: '♡' },
-  { path: '/home?create=1', label: '发布', icon: '+' },
   { path: '/chat', label: '聊天', icon: '✉' },
   { path: '/profile', label: '我的', icon: '○' }
 ];
@@ -13,9 +12,9 @@ export function AppLayout() {
     <div className="mobile-stage">
       <div className="phone-shell">
         <main className="phone-content"><Outlet /></main>
-        <nav className="bottom-tab">
+        <nav className="bottom-tab compact-tab">
           {tabs.map((tab) => (
-            <NavLink key={tab.label} to={tab.path} className={({ isActive }) => `tab-item ${tab.label === '发布' ? 'create-tab' : ''} ${isActive && tab.label !== '发布' ? 'active' : ''}`}>
+            <NavLink key={tab.label} to={tab.path} className={({ isActive }) => `tab-item ${isActive ? 'active' : ''}`}>
               <span className="tab-icon">{tab.icon}</span>
               <span>{tab.label}</span>
             </NavLink>
