@@ -5,6 +5,11 @@ import '../styles/onboarding.css';
 
 const steps = ['学校认证', '账号资料', '兴趣偏好', '照片隐私', '个性问答'];
 const intents = ['认真了解', '长期朋友', '学习搭子', '活动玩伴'];
+const verificationMethods = [
+  { id: 'email', title: '校园邮箱认证', desc: '适合有学校邮箱的同学，后续可自动化验证。', field: '校园邮箱' },
+  { id: 'studentId', title: '学号信息认证', desc: '提交学号后由管理员人工审核，前台不展示学号。', field: '学号' },
+  { id: 'card', title: '学生证 / 校园卡认证', desc: '上传学生证或校园卡照片，初期全部人工审核。', field: '证件照片' }
+];
 const promptOptions = [
   '我的理想周末是',
   '最能代表我的三个关键词',
@@ -16,7 +21,10 @@ const promptOptions = [
 export function AuthPage(){
   const nav=useNavigate();
   const [step,setStep]=useState(0);
+  const [verifyMethod,setVerifyMethod]=useState('email');
   const [email,setEmail]=useState('2026xxxx@ncepu.edu.cn');
+  const [studentId,setStudentId]=useState('');
+  const [cardUploaded,setCardUploaded]=useState(false);
   const [nickname,setNickname]=useState('林间风');
   const [password,setPassword]=useState('');
   const [intent,setIntent]=useState('长期朋友');
@@ -24,6 +32,7 @@ export function AuthPage(){
   const [activeGroup,setActiveGroup]=useState(onboardingInterestGroups[0].title);
   const [expanded,setExpanded]=useState<string>('音乐');
   const [photoMode,setPhotoMode]=useState(photoVisibilityOptions[1].title);
+  const [photos,setPhotos]=useState(['主照片']);
   const [prompts,setPrompts]=useState([
     { q:'我的理想周末是', a:'上午图书馆，下午运动或咖啡，晚上轻松散步。' },
     { q:'我希望认识这样的人', a:'真诚、有边界感、愿意稳定沟通的人。' }
@@ -34,12 +43,13 @@ export function AuthPage(){
   const toggle=(tag:string)=>setSelected((prev)=>prev.includes(tag)?prev.filter((item)=>item!==tag):[...prev,tag]);
   const toggleBaseTag=(tag:string)=>{ toggle(tag); if(interestSubtags[tag]) setExpanded(expanded===tag?'':tag); };
   const progress=((step+1)/steps.length)*100;
+  const selectedMethod=verificationMethods.find((m)=>m.id===verifyMethod) ?? verificationMethods[0];
 
   const canNext =
-    step===0 ? email.includes('@') :
+    step===0 ? (verifyMethod==='email' ? email.includes('@') : verifyMethod==='studentId' ? studentId.trim().length>=6 : cardUploaded) :
     step===1 ? nickname.trim().length>=2 && password.length>=0 :
     step===2 ? selected.length>=5 && detailCount>=2 :
-    step===3 ? Boolean(photoMode) :
+    step===3 ? Boolean(photoMode) && photos.length>=1 :
     prompts.filter((p)=>p.a.trim()).length>=2;
 
   const next=()=>{
@@ -62,10 +72,20 @@ export function AuthPage(){
           {step===0 && <section className='onboarding-card hero-step'>
             <span className='step-kicker'>Step 1 / 5</span>
             <h2>学校认证</h2>
-            <p>只用于确认你是华电学生。推荐、动态和匹配页默认只展示昵称与校园认证，不展示学号、真名和具体学院年级。</p>
-            <label>校园邮箱 / 学号认证入口</label>
-            <input value={email} onChange={(e)=>setEmail(e.target.value)} placeholder='例如 2026xxxx@ncepu.edu.cn'/>
-            <div className='privacy-note'>前台匿名展示，后台实名认证；互相感兴趣后再逐步交换私密信息。</div>
+            <p>初期用户少，建议全部进入人工审核队列。认证信息只给平台审核，不会在推荐、动态和匹配页展示。</p>
+            <div className='verification-list'>
+              {verificationMethods.map((method)=><button key={method.id} className={verifyMethod===method.id?'verification-card active':'verification-card'} onClick={()=>setVerifyMethod(method.id)}>
+                <b>{method.title}</b><span>{method.desc}</span>
+              </button>)}
+            </div>
+            <label>{selectedMethod.field}</label>
+            {verifyMethod==='email' && <input value={email} onChange={(e)=>setEmail(e.target.value)} placeholder='例如 2026xxxx@ncepu.edu.cn'/>}
+            {verifyMethod==='studentId' && <input value={studentId} onChange={(e)=>setStudentId(e.target.value)} placeholder='请输入学号，仅用于人工审核'/>}
+            {verifyMethod==='card' && <button className={cardUploaded?'upload-box done':'upload-box'} onClick={()=>setCardUploaded(true)}>
+              <b>{cardUploaded?'学生证 / 校园卡已添加':'上传学生证 / 校园卡'}</b>
+              <span>正面清晰可见即可，关键信息仅审核人员可见</span>
+            </button>}
+            <div className='privacy-note'>前台匿名展示，后台人工认证；互相感兴趣后再逐步交换私密信息。</div>
           </section>}
 
           {step===1 && <section className='onboarding-card'>
@@ -128,7 +148,12 @@ export function AuthPage(){
           {step===3 && <section className='onboarding-card'>
             <span className='step-kicker'>Step 4 / 5</span>
             <h2>照片隐私</h2>
-            <p>考虑校内熟人环境，NCEPU Link 使用双轨匹配：公开照片用户优先匹配公开照片用户；隐私用户通过兴趣与授权机制匹配。</p>
+            <p>先上传照片，再设置谁能看。参考成熟社交平台的做法，照片用于资料完整度、匹配展示和人工审核，但可选择不公开给陌生人。</p>
+            <div className='photo-uploader'>
+              {[0,1,2,3,4,5].map((slot)=><button key={slot} className={photos[slot]?'photo-slot filled':'photo-slot'} onClick={()=>setPhotos((prev)=>prev[slot]?prev: [...prev, slot===0?'主照片':`生活照 ${slot+1}`])}>
+                {photos[slot] ? <><b>{photos[slot]}</b><span>点击可替换</span></> : <><b>＋</b><span>{slot===0?'添加主照片':'添加照片'}</span></>}
+              </button>)}
+            </div>
             <div className='privacy-option-list'>
               {photoVisibilityOptions.map((option)=><button key={option.id} className={photoMode===option.title?'privacy-option active':'privacy-option'} onClick={()=>setPhotoMode(option.title)}><b>{option.title}</b><span>{option.desc}</span></button>)}
             </div>
