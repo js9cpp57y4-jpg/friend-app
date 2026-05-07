@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { brand, interestSubtags, onboardingInterestGroups, photoVisibilityOptions } from '../mock/data';
 import '../styles/onboarding.css';
 
-const steps = ['学校认证', '账号资料', '兴趣偏好', '照片隐私', '个性问答'];
+const steps = ['登录', '学校认证', '账号资料', '兴趣偏好', '照片隐私', '个性问答'];
 const intents = ['认真了解', '长期朋友', '学习搭子', '活动玩伴'];
 const promptOptions = [
   '我的理想周末是',
@@ -16,6 +16,9 @@ const promptOptions = [
 export function AuthPage(){
   const nav=useNavigate();
   const [step,setStep]=useState(0);
+  const [loginType,setLoginType]=useState<'phone'|'wechat'>('phone');
+  const [phone,setPhone]=useState('13800000000');
+  const [code,setCode]=useState('2468');
   const [cardUploaded,setCardUploaded]=useState(false);
   const [nickname,setNickname]=useState('林间风');
   const [password,setPassword]=useState('');
@@ -37,10 +40,11 @@ export function AuthPage(){
   const progress=((step+1)/steps.length)*100;
 
   const canNext =
-    step===0 ? cardUploaded :
-    step===1 ? nickname.trim().length>=2 && password.length>=0 :
-    step===2 ? selected.length>=5 && detailCount>=2 :
-    step===3 ? Boolean(photoMode) && photos.length>=1 :
+    step===0 ? (loginType==='wechat' || (phone.trim().length>=11 && code.trim().length>=4)) :
+    step===1 ? cardUploaded :
+    step===2 ? nickname.trim().length>=2 && password.length>=0 :
+    step===3 ? selected.length>=5 && detailCount>=2 :
+    step===4 ? Boolean(photoMode) && photos.length>=1 :
     prompts.filter((p)=>p.a.trim()).length>=2;
 
   const next=()=>{
@@ -57,11 +61,27 @@ export function AuthPage(){
             <h1 className='wordmark'>{brand.name}</h1>
             <p>{brand.cnTagline}</p>
             <div className='step-progress'><span style={{width:`${progress}%`}} /></div>
-            <div className='step-dots'>{steps.map((s,i)=><button key={s} className={i===step?'dot-step active':'dot-step'} onClick={()=>setStep(i)}>{i+1}</button>)}</div>
           </header>
 
           {step===0 && <section className='onboarding-card hero-step'>
-            <span className='step-kicker'>Step 1 / 5</span>
+            <span className='step-kicker'>开始使用</span>
+            <h2>登录 / 注册</h2>
+            <p>先完成账号登录，再进行校园认证与资料建档。初期可以用手机号验证码或微信登录入口。</p>
+            <div className='login-switch'>
+              <button className={loginType==='phone'?'active':''} onClick={()=>setLoginType('phone')}>手机号验证码</button>
+              <button className={loginType==='wechat'?'active':''} onClick={()=>setLoginType('wechat')}>微信登录</button>
+            </div>
+            {loginType==='phone' ? <>
+              <label>手机号</label>
+              <input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder='请输入手机号'/>
+              <label>验证码</label>
+              <div className='code-row'><input value={code} onChange={(e)=>setCode(e.target.value)} placeholder='短信验证码'/><button>获取验证码</button></div>
+            </> : <button className='wechat-login' onClick={()=>setLoginType('wechat')}><b>微信一键登录</b><span>授权后继续完成校园认证</span></button>}
+            <div className='privacy-note'>登录仅用于创建账号；校园认证通过后才会出现“校园认证”标识。</div>
+          </section>}
+
+          {step===1 && <section className='onboarding-card hero-step'>
+            <span className='step-kicker'>学校认证</span>
             <h2>学校认证</h2>
             <p>请拍摄并提交你的学生证或校园卡。平台人工审核通过后，你的资料会获得“校园认证”标识；推荐、动态和匹配页仍默认只展示昵称，不展示学号、真名和具体学院年级。</p>
             <div className='verification-focus'>
@@ -83,8 +103,8 @@ export function AuthPage(){
             <div className='privacy-note'>审核通过后前台显示“校园认证”，不直接公开你的真实身份；互相感兴趣后再逐步交换私密信息。</div>
           </section>}
 
-          {step===1 && <section className='onboarding-card'>
-            <span className='step-kicker'>Step 2 / 5</span>
+          {step===2 && <section className='onboarding-card'>
+            <span className='step-kicker'>账号资料</span>
             <h2>账号资料</h2>
             <p>参考成熟交友平台的建档方式，先用轻量资料表达关系期待，避免一开始暴露过多隐私。</p>
             <label>昵称</label>
@@ -95,17 +115,15 @@ export function AuthPage(){
             <div className='option-grid'>{intents.map((item)=><button key={item} className={intent===item?'option-card active':'option-card'} onClick={()=>setIntent(item)}>{item}</button>)}</div>
           </section>}
 
-          {step===2 && <section className='onboarding-card interest-step'>
-            <span className='step-kicker'>Step 3 / 5</span>
+          {step===3 && <section className='onboarding-card interest-step'>
+            <span className='step-kicker'>兴趣偏好</span>
             <div className='section-title'><h2>兴趣偏好</h2><span>{selected.length} 已选</span></div>
             <p>至少选择 5 个兴趣，其中至少 2 个细分偏好。比如“音乐 → R&B / 嘻哈 / 摇滚”，比只选“音乐”更能提高同频推荐质量。</p>
-
             <div className='interest-tabs'>
               {onboardingInterestGroups.map((group)=>(
                 <button key={group.title} className={activeGroup===group.title?'interest-tab active':'interest-tab'} onClick={()=>setActiveGroup(group.title)}>{group.title}</button>
               ))}
             </div>
-
             <div className='interest-panel'>
               <h3>{currentGroup.title}</h3>
               <p>{currentGroup.desc}</p>
@@ -114,9 +132,7 @@ export function AuthPage(){
                   <b>{section.name}</b>
                   <div className='interest-grid'>
                     {section.tags.map((tag)=>(
-                      <button key={tag} className={selected.includes(tag)?'interest-chip active':'interest-chip'} onClick={()=>toggleBaseTag(tag)}>
-                        {tag}{interestSubtags[tag]?' +':''}
-                      </button>
+                      <button key={tag} className={selected.includes(tag)?'interest-chip active':'interest-chip'} onClick={()=>toggleBaseTag(tag)}>{tag}{interestSubtags[tag]?' +':''}</button>
                     ))}
                   </div>
                   {section.tags.some((tag)=>tag===expanded && interestSubtags[tag]) && (
@@ -133,15 +149,14 @@ export function AuthPage(){
                 </div>
               ))}
             </div>
-
             <div className='selected-summary'>
               <b>已选标签 · {detailCount} 个细分偏好</b>
               <div className='interest-grid'>{selected.map((tag)=><button key={tag} className='interest-chip active' onClick={()=>toggle(tag)}>{tag.replace(':',' · ')}</button>)}</div>
             </div>
           </section>}
 
-          {step===3 && <section className='onboarding-card'>
-            <span className='step-kicker'>Step 4 / 5</span>
+          {step===4 && <section className='onboarding-card'>
+            <span className='step-kicker'>照片隐私</span>
             <h2>照片隐私</h2>
             <p>先上传照片，再设置谁能看。照片用于资料完整度、匹配展示和人工审核，但可选择不公开给陌生人。</p>
             <div className='photo-uploader'>
@@ -154,8 +169,8 @@ export function AuthPage(){
             </div>
           </section>}
 
-          {step===4 && <section className='onboarding-card'>
-            <span className='step-kicker'>Step 5 / 5</span>
+          {step===5 && <section className='onboarding-card'>
+            <span className='step-kicker'>个性问答</span>
             <h2>个性问答</h2>
             <p>用 2-3 个回答替代尴尬的空白资料，让别人更容易发起有效聊天。</p>
             {prompts.map((item,idx)=><div className='prompt-card' key={idx}>
