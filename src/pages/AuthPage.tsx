@@ -5,11 +5,6 @@ import '../styles/onboarding.css';
 
 const steps = ['学校认证', '账号资料', '兴趣偏好', '照片隐私', '个性问答'];
 const intents = ['认真了解', '长期朋友', '学习搭子', '活动玩伴'];
-const verificationMethods = [
-  { id: 'email', title: '校园邮箱认证', desc: '适合有学校邮箱的同学，后续可自动化验证。', field: '校园邮箱' },
-  { id: 'studentId', title: '学号信息认证', desc: '提交学号后由管理员人工审核，前台不展示学号。', field: '学号' },
-  { id: 'card', title: '学生证 / 校园卡认证', desc: '上传学生证或校园卡照片，初期全部人工审核。', field: '证件照片' }
-];
 const promptOptions = [
   '我的理想周末是',
   '最能代表我的三个关键词',
@@ -21,9 +16,6 @@ const promptOptions = [
 export function AuthPage(){
   const nav=useNavigate();
   const [step,setStep]=useState(0);
-  const [verifyMethod,setVerifyMethod]=useState('email');
-  const [email,setEmail]=useState('2026xxxx@ncepu.edu.cn');
-  const [studentId,setStudentId]=useState('');
   const [cardUploaded,setCardUploaded]=useState(false);
   const [nickname,setNickname]=useState('林间风');
   const [password,setPassword]=useState('');
@@ -43,10 +35,9 @@ export function AuthPage(){
   const toggle=(tag:string)=>setSelected((prev)=>prev.includes(tag)?prev.filter((item)=>item!==tag):[...prev,tag]);
   const toggleBaseTag=(tag:string)=>{ toggle(tag); if(interestSubtags[tag]) setExpanded(expanded===tag?'':tag); };
   const progress=((step+1)/steps.length)*100;
-  const selectedMethod=verificationMethods.find((m)=>m.id===verifyMethod) ?? verificationMethods[0];
 
   const canNext =
-    step===0 ? (verifyMethod==='email' ? email.includes('@') : verifyMethod==='studentId' ? studentId.trim().length>=6 : cardUploaded) :
+    step===0 ? cardUploaded :
     step===1 ? nickname.trim().length>=2 && password.length>=0 :
     step===2 ? selected.length>=5 && detailCount>=2 :
     step===3 ? Boolean(photoMode) && photos.length>=1 :
@@ -72,20 +63,24 @@ export function AuthPage(){
           {step===0 && <section className='onboarding-card hero-step'>
             <span className='step-kicker'>Step 1 / 5</span>
             <h2>学校认证</h2>
-            <p>初期用户少，建议全部进入人工审核队列。认证信息只给平台审核，不会在推荐、动态和匹配页展示。</p>
-            <div className='verification-list'>
-              {verificationMethods.map((method)=><button key={method.id} className={verifyMethod===method.id?'verification-card active':'verification-card'} onClick={()=>setVerifyMethod(method.id)}>
-                <b>{method.title}</b><span>{method.desc}</span>
-              </button>)}
+            <p>请拍摄并提交你的学生证或校园卡。平台人工审核通过后，你的资料会获得“校园认证”标识；推荐、动态和匹配页仍默认只展示昵称，不展示学号、真名和具体学院年级。</p>
+            <div className='verification-focus'>
+              <div>
+                <b>学生证 / 校园卡认证</b>
+                <span>用于确认你是华电在校学生，初期全部由管理员人工审核。</span>
+              </div>
+              <span className='review-badge'>人工审核</span>
             </div>
-            <label>{selectedMethod.field}</label>
-            {verifyMethod==='email' && <input value={email} onChange={(e)=>setEmail(e.target.value)} placeholder='例如 2026xxxx@ncepu.edu.cn'/>}
-            {verifyMethod==='studentId' && <input value={studentId} onChange={(e)=>setStudentId(e.target.value)} placeholder='请输入学号，仅用于人工审核'/>}
-            {verifyMethod==='card' && <button className={cardUploaded?'upload-box done':'upload-box'} onClick={()=>setCardUploaded(true)}>
-              <b>{cardUploaded?'学生证 / 校园卡已添加':'上传学生证 / 校园卡'}</b>
-              <span>正面清晰可见即可，关键信息仅审核人员可见</span>
-            </button>}
-            <div className='privacy-note'>前台匿名展示，后台人工认证；互相感兴趣后再逐步交换私密信息。</div>
+            <button className={cardUploaded?'upload-box done':'upload-box'} onClick={()=>setCardUploaded(true)}>
+              <b>{cardUploaded?'证件照片已提交':'拍摄 / 上传学生证或校园卡'}</b>
+              <span>建议包含姓名、学校、学号或有效学生身份信息。隐私信息仅审核人员可见。</span>
+            </button>
+            <div className='review-flow'>
+              <span>提交材料</span><i />
+              <span>人工审核</span><i />
+              <span>获得校园认证标识</span>
+            </div>
+            <div className='privacy-note'>审核通过后前台显示“校园认证”，不直接公开你的真实身份；互相感兴趣后再逐步交换私密信息。</div>
           </section>}
 
           {step===1 && <section className='onboarding-card'>
@@ -148,7 +143,7 @@ export function AuthPage(){
           {step===3 && <section className='onboarding-card'>
             <span className='step-kicker'>Step 4 / 5</span>
             <h2>照片隐私</h2>
-            <p>先上传照片，再设置谁能看。参考成熟社交平台的做法，照片用于资料完整度、匹配展示和人工审核，但可选择不公开给陌生人。</p>
+            <p>先上传照片，再设置谁能看。照片用于资料完整度、匹配展示和人工审核，但可选择不公开给陌生人。</p>
             <div className='photo-uploader'>
               {[0,1,2,3,4,5].map((slot)=><button key={slot} className={photos[slot]?'photo-slot filled':'photo-slot'} onClick={()=>setPhotos((prev)=>prev[slot]?prev: [...prev, slot===0?'主照片':`生活照 ${slot+1}`])}>
                 {photos[slot] ? <><b>{photos[slot]}</b><span>点击可替换</span></> : <><b>＋</b><span>{slot===0?'添加主照片':'添加照片'}</span></>}
