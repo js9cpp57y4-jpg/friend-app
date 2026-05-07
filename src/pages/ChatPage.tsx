@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { chats, icebreakers, matchedUsers } from '../mock/data';
+import { chats, matchedUsers } from '../mock/data';
 
 type Message = { from: 'me' | 'them'; text: string; time: string };
 
@@ -13,6 +13,9 @@ const myLikes = [
   { id: 'ml2', nickname: '青柠', initials: 'QN', meta: '已发送照片查看请求', status: '请求中' }
 ];
 
+const emojiPacks = ['😊','😂','🥹','😎','👏','❤️','🔥','🌙','🎧','🏸','📚','☕'];
+const stickerPacks = ['猫猫点头','收到收到','一起冲','哈哈哈','加油鸭','晚点回'];
+
 const sparkLevel = (days: number, count: number) => {
   if (days >= 14 && count >= 80) return { label: '炽热火花', icon: '🔥🔥🔥', desc: '连续聊天 14 天以上' };
   if (days >= 7 && count >= 35) return { label: '高能火花', icon: '🔥🔥', desc: '连续聊天 7 天以上' };
@@ -24,6 +27,7 @@ export function ChatPage() {
   const [mode, setMode] = useState<'messages' | 'likes'>('messages');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
+  const [showEmoji, setShowEmoji] = useState(false);
   const [localChats, setLocalChats] = useState<Record<string, Message[]>>(chats);
   const activeUser = useMemo(() => matchedUsers.find((u) => u.id === activeId) ?? matchedUsers[0], [activeId]);
   const messages = localChats[activeUser.id] ?? [];
@@ -34,6 +38,7 @@ export function ChatPage() {
     if (!value || !activeId) return;
     setLocalChats((prev) => ({ ...prev, [activeUser.id]: [...(prev[activeUser.id] ?? []), { from: 'me', text: value, time: '刚刚' }] }));
     setDraft('');
+    setShowEmoji(false);
   };
 
   if (mode === 'messages' && activeId) {
@@ -49,8 +54,13 @@ export function ChatPage() {
         <div className="message-stream full-stream">
           {messages.map((m, i) => <p className={`bubble ${m.from === 'me' ? 'me' : ''}`} key={`${m.time}-${i}`}>{m.text}</p>)}
         </div>
-        <div className="icebreakers">{icebreakers.map((i) => <button key={i} onClick={()=>send(i)}>{i}</button>)}</div>
-        <div className="composer full-composer"><input value={draft} onChange={(e)=>setDraft(e.target.value)} placeholder="输入消息..." onKeyDown={(e)=>{ if(e.key==='Enter') send(); }} /><button className="cta" onClick={()=>send()}>发送</button></div>
+        {showEmoji && <div className="emoji-panel">
+          <b>表情</b>
+          <div className="emoji-grid">{emojiPacks.map((emoji)=><button key={emoji} onClick={()=>setDraft((v)=>`${v}${emoji}`)}>{emoji}</button>)}</div>
+          <b>表情包</b>
+          <div className="sticker-grid">{stickerPacks.map((sticker)=><button key={sticker} onClick={()=>send(`[表情包] ${sticker}`)}>{sticker}</button>)}</div>
+        </div>}
+        <div className="composer full-composer"><button className="emoji-btn" onClick={()=>setShowEmoji((v)=>!v)}>☺</button><input value={draft} onChange={(e)=>setDraft(e.target.value)} placeholder="输入消息..." onKeyDown={(e)=>{ if(e.key==='Enter') send(); }} /><button className="cta" onClick={()=>send()}>发送</button></div>
       </section>
     );
   }
