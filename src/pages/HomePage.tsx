@@ -79,7 +79,7 @@ export function HomePage() {
 
       {homeMode === 'feed' ? <>
         <div className="section-title feed-title-row">
-          <div><h3>校园动态</h3><span>基于点击、点赞、评论、收藏进行推荐排序</span></div>
+          <div><h3>校园动态</h3><span>推荐内容</span></div>
           <div className="feed-filter">
             <button className={sortMode === 'recommend' ? 'active' : ''} onClick={() => setSortMode('recommend')}>推荐</button>
             <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>最新</button>
