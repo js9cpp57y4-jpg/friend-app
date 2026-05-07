@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { brand, feed, recommendedUsers, stories } from '../mock/data';
+import { brand, events, feed, recommendedUsers, stories } from '../mock/data';
+import '../styles/social.css';
 
 type FeedAction = 'like' | 'comment' | 'save';
 
@@ -12,6 +13,8 @@ const scoreOf = (item: { likes: number; comments: number; saves: number; clicks:
 export function HomePage() {
   const nav = useNavigate();
   const [sortMode, setSortMode] = useState<'recommend' | 'latest'>('recommend');
+  const [showCreate, setShowCreate] = useState(false);
+  const [joined, setJoined] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState<FeedStats>(() => Object.fromEntries(feed.map((post) => [post.id, { likes: post.likes, comments: post.comments, saves: post.saves, clicks: 0, liked: false, saved: false }])));
 
   const rankedFeed = useMemo(() => {
@@ -66,6 +69,12 @@ export function HomePage() {
         <button className="cta" onClick={() => nav('/match')}>查看推荐</button>
       </article>
 
+      <button className="creator-entry" onClick={() => setShowCreate((v) => !v)}><span>＋</span><b>发布校园动态 / 发起活动</b></button>
+      {showCreate && <article className="create-panel">
+        <button><b>发布动态</b><span>分享自习、运动、生活片段</span></button>
+        <button><b>发起活动</b><span>创建自习局、球局、桌游局等</span></button>
+      </article>}
+
       <div className="privacy-note">动态页默认隐藏学院、年级等敏感信息；互相感兴趣后可逐步交换。</div>
       <div className="section-title feed-title-row">
         <div><h3>校园动态</h3><span>基于点击、点赞、评论、收藏进行推荐排序</span></div>
@@ -91,6 +100,14 @@ export function HomePage() {
           </article>
         );
       })}
+
+      <div className="section-title"><h3>活动报名</h3><span>并入校园动态流</span></div>
+      {events.slice(0, 4).map((event) => <article className="feed-card activity-feed" key={event.id}>
+        <div className="event-cover"><div className="cover-title">{event.coverTitle}</div><div className="cover-subtitle">{event.time} · {event.place}</div></div>
+        <h3>{event.title}</h3>
+        <p>{event.people} · {event.tag}</p>
+        <button className={joined[event.id] ? 'outline-btn joined' : 'cta'} onClick={() => setJoined((prev) => ({ ...prev, [event.id]: !prev[event.id] }))}>{joined[event.id] ? '已报名' : '报名参加'}</button>
+      </article>)}
     </section>
   );
 }
